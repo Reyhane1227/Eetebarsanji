@@ -1,1 +1,749 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اعتبارسنجی خوابگاه‌ها</title>
+    <!-- کتابخانه‌های مورد نیاز -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; }
+        body { background: #f0f4f8; margin: 0; padding: 10px; direction: rtl; font-size: 15px; color: #1e2b3c; }
+        .container { max-width: 1050px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 14px 10px; }
+        h1 { font-size: 20px; text-align: center; color: #0b3b5c; margin: 0 0 8px; font-weight: 800; }
+        .subtitle { text-align: center; font-size: 14px; color: #4a5b6e; margin-bottom: 16px; }
+        .login-card { background: #fff; border-radius: 16px; padding: 26px 20px; border: 2px solid #1e3a5f; max-width: 500px; margin: 30px auto; }
+        .login-card label { display: block; font-weight: 800; color: #1e3a5f; margin-bottom: 8px; font-size: 16px; }
+        .login-card select, .selector-box select { width: 100%; padding: 14px 12px; border-radius: 10px; border: 2px solid #1e3a5f; font-size: 16px; font-weight: 700; color: #1e3a5f; background: #fff; cursor: pointer; }
+        .btn-login { background: #1e3a5f; color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 17px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 12px; }
+        .btn-login:disabled { background: #94a3b8; cursor: not-allowed; }
+        .user-bar { background: linear-gradient(135deg, #1e3a5f 0%, #0b6e99 100%); color: #fff; padding: 14px 16px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .user-bar .info { display: flex; flex-direction: column; gap: 4px; }
+        .user-bar .info .nm { font-size: 16px; font-weight: 800; }
+        .user-bar .info .un { font-size: 13px; opacity: 0.95; }
+        .btn-logout { background: #ffb347; color: #1e2b3c; border: none; padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; }
+        .selector-box { background: #eef4fa; padding: 14px; border-radius: 12px; margin-bottom: 16px; border: 2px solid #1e3a5f; }
+        .selector-box label { font-weight: 800; color: #1e3a5f; display: block; margin-bottom: 8px; font-size: 16px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #f8fafc; padding: 12px; border-radius: 12px; margin-bottom: 18px; font-size: 14px; }
+        .info-item { display: flex; justify-content: space-between; background: #fff; padding: 8px 10px; border-radius: 8px; }
+        .info-item .val { font-weight: 800; color: #0b3b5c; }
+        .accordion { border: 2px solid #1e3a5f; border-radius: 12px; margin-bottom: 14px; overflow: hidden; background: #fff; }
+        .accordion-header { background: #1e3a5f; color: #fff; padding: 16px 14px; font-weight: 800; font-size: 17px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-header .weight { background: #ffb347; color: #1e2b3c; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 800; }
+        .arrow { transition: transform 0.25s; }
+        .accordion-header.open .arrow { transform: rotate(180deg); }
+        .accordion-body { display: none; }
+        .accordion-body.open { display: block; }
+        .card-list { padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .item-card { border: 2px solid #cbd5e1; border-radius: 10px; padding: 10px; background: #fff; }
+        .item-card.discrepancy { border-color: #e2b04a; background: #fff9e6; }
+        .item-title { font-weight: 800; font-size: 14px; color: #1e3a5f; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .w-badge { background: #fff7e6; color: #b45309; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 800; }
+        .item-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 13px; }
+        .self-badge { background: #f1f5f9; padding: 6px 12px; border-radius: 8px; font-weight: 800; color: #1e3a5f; }
+        .score-select { width: 100%; padding: 12px 10px; border: 2px solid #1e3a5f; border-radius: 8px; font-size: 15px; font-weight: 800; color: #1e3a5f; background: #fff; cursor: pointer; }
+        .score-select.empty { border-color: #e2b04a; background: #fffcf0; color: #b45309; }
+        .reason-input { width: 100%; padding: 10px; border: 2px solid #e2b04a; border-radius: 8px; font-size: 14px; background: #fffcf0; display: none; margin-top: 6px; }
+        .reason-input.active { display: block; }
+        .total-box { background: #d9e8f5; padding: 12px; border-radius: 8px; text-align: center; font-weight: 800; font-size: 15px; color: #1e3a5f; margin-top: 8px; }
+        .grand-total-box { background: #e8f0fe; padding: 18px; border-radius: 12px; display: flex; justify-content: space-between; font-weight: 800; font-size: 17px; margin-top: 20px; border: 2px solid #1e3a5f; }
+        .grand-total-box span:last-child { font-size: 26px; color: #1e3a5f; }
+        .btn-submit { background: #1e3a5f; color: #fff; border: none; padding: 18px; border-radius: 12px; font-size: 18px; font-weight: 800; width: 100%; margin-top: 18px; cursor: pointer; }
+        .hint { font-size: 14px; font-weight: 700; color: #b45309; background: #fff7e6; padding: 12px; border-radius: 10px; margin-top: 14px; border-right: 5px solid #b45309; }
+        
+        /* استایل دکمه‌ها */
+        .save-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 16px; }
+        .save-bar button { padding: 16px 10px; border-radius: 10px; border: 2px solid #1e3a5f; font-size: 14px; font-weight: 800; cursor: pointer; }
+        .btn-excel { background: #217346; color: #fff; border-color: #217346; }
+        .btn-site { background: #0b3b5c; color: #fff; border-color: #0b3b5c; }
+        .btn-pdf { background: #d32f2f; color: #fff; border-color: #d32f2f; }
+        .btn-report { background: #ffb347; color: #1e2b3c; border-color: #ffb347; grid-column: 1 / -1; margin-top: 10px; }
+        .status { text-align: center; margin-top: 12px; font-weight: 700; min-height: 24px; font-size: 14px; color: #059669; }
+        
+        /* استایل جدول گزارشات */
+        .report-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        .report-table th { background: #1e3a5f; color: #fff; padding: 10px; border: 1px solid #cbd5e1; }
+        .report-table td { padding: 10px; border: 1px solid #cbd5e1; text-align: center; }
+        .report-table tr:nth-child(even) { background: #f8fafc; }
+        
+        @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr; } .save-bar { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
 
+<div id="loginScreen" class="container">
+    <div class="login-card">
+        <h1 style="text-align:center;">🔐 ورود به سامانه</h1>
+        <div class="subtitle">اعتبارسنجی خوابگاه‌های دانشجویی</div>
+        <label>نام خود را انتخاب کنید:</label>
+        <select id="evaluatorSelect" onchange="checkLoginReady()"><option value="">— انتخاب کنید —</option></select>
+        <button class="btn-login" id="loginBtn" onclick="login()" disabled>ورود</button>
+    </div>
+</div>
+
+<div id="evalScreen" class="container" style="display:none;">
+    <h1>فرم اعتبارسنجی خوابگاه‌های دانشجویی</h1>
+    <div class="subtitle">دانشگاه علوم پزشکی شهید بهشتی</div>
+    <div class="user-bar">
+        <div class="info">
+            <span style="font-size:12px;opacity:0.85;">ارزیاب فعلی</span>
+            <span class="nm" id="currentEvaluatorName">—</span>
+            <span class="un" id="currentEvaluatorUni">—</span>
+        </div>
+        <button class="btn-logout" onclick="logout()">🔄 تغییر کاربر</button>
+    </div>
+    <div class="selector-box">
+        <label>🏠 انتخاب خوابگاه</label>
+        <select id="dormSelect" onchange="loadDormitory(this.value)"><option value="">— انتخاب کنید —</option></select>
+    </div>
+    <div id="dormInfo" class="info-grid" style="display:none;">
+        <div class="info-item"><span>نام دانشگاه</span><span class="val" id="infoUni">—</span></div>
+        <div class="info-item"><span>نام خوابگاه</span><span class="val" id="infoDorm">—</span></div>
+        <div class="info-item"><span>نوع</span><span class="val" id="infoType">—</span></div>
+        <div class="info-item"><span>مالکیت</span><span class="val" id="infoOwn">—</span></div>
+        <div class="info-item"><span>مدیریت</span><span class="val" id="infoMgmt">—</span></div>
+        <div class="info-item"><span>تعداد واحد</span><span class="val" id="infoUnits">—</span></div>
+        <div class="info-item"><span>تعداد ساکن</span><span class="val" id="infoFamilies">—</span></div>
+    </div>
+    <div id="formContainer"></div>
+    <div id="grandTotalBox" class="grand-total-box" style="display:none;">
+        <span>جمع کل امتیاز (از ۱۰۰۰)</span><span id="grand-total">۰</span>
+    </div>
+    <div id="hintBox" class="hint" style="display:none;">⚠️ در صورت مغایرت، علت مغایرت را وارد کنید.</div>
+    <div id="saveBar" class="save-bar" style="display:none;">
+        <button class="btn-site" onclick="saveToSite()">💾 ذخیره در سایت</button>
+        <button class="btn-excel" onclick="downloadExcel()">📊 دانلود اکسل</button>
+        <button class="btn-pdf" onclick="downloadPDF()">📄 خروجی PDF</button>
+        <button class="btn-report" onclick="loadReports()">📋 مشاهده گزارش‌های ثبت‌شده</button>
+    </div>
+    <div id="status" class="status"></div>
+    <button id="submitBtn" class="btn-submit" style="display:none;" onclick="submitForm()">ثبت نهایی فرم</button>
+
+    <!-- بخش نمایش گزارشات -->
+    <div id="reportSection" style="display:none; margin-top: 30px; border-top: 2px dashed #cbd5e1; padding-top: 20px;">
+        <h2 style="text-align:center; color:#1e3a5f; font-size:18px;">📋 گزارش‌های ثبت‌شده در سیستم</h2>
+        <div style="overflow-x: auto;">
+            <table class="report-table" id="reportTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>نام ارزیاب</th>
+                        <th>خوابگاه</th>
+                        <th>نوع</th>
+                        <th>امتیاز کل</th>
+                        <th>تاریخ ثبت</th>
+                    </tr>
+                </thead>
+                <tbody id="reportBody">
+                    <tr><td colspan="6" style="text-align:center;">در حال بارگذاری...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <button onclick="document.getElementById('reportSection').style.display='none'" style="margin-top:15px; padding:10px; width:100%; background:#94a3b8; color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">بستن جدول گزارشات</button>
+    </div>
+</div>
+
+<script>
+// ==========================================================
+// تنظیمات دیتابیس شما
+const SUPABASE_URL = "https://ywrpcwpylbzgqassshxt.supabase.co"; 
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3cnBjd3B5bGJ6Z3Fhc3NzaHh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTQxNTE2MDAsImV4cCI6MjAyOTcyNzYwMH0.QW5mNP6GIn7iXKjK4wJ5x5B4pX5B4pX5B4pX5B4pX5B4";
+// ==========================================================
+
+const EVALUATORS = [
+    { name: 'دکتر یگانه حشتمی', uni: 'دانشگاه علوم پزشکی مشهد' },
+    { name: 'دکتر رضا فانی', uni: 'دانشگاه علوم پزشکی خراسان شمالی' },
+    { name: 'میثم نقوی مقدم', uni: 'دانشگاه علوم پزشکی مشهد' },
+    { name: 'آمنه جواد موسوی', uni: 'دانشگاه علوم پزشکی مشهد' },
+    { name: 'ریحانه ابراهیمی', uni: 'دانشگاه علوم پزشکی مشهد' },
+    { name: 'بهرام خرازی زاده', uni: 'دانشگاه علوم پزشکی مشهد' },
+    { name: 'مهدی عیسی پور', uni: 'دانشگاه علوم پزشکی خراسان شمالی' },
+    { name: 'مریم کسکنی', uni: 'دانشگاه علوم پزشکی سبزوار' },
+    { name: 'جلال الدین دهقانی فیروزآبادی', uni: 'دانشگاه علوم پزشکی بیرجند' },
+    { name: 'ندا خواره', uni: 'دانشگاه علوم پزشکی تربت حیدریه' },
+    { name: 'ناصر شجاعی', uni: 'دانشگاه علوم پزشکی مشهد' }
+];
+
+const DORMS = [
+    { id: 'beheshti', name: 'خانواده بهشتی', type: 'متاهلی', ownership: 'استیجاری', mgmt: 'مشارکتی', units: 28, families: 28 },
+    { id: 'abbaspour', name: 'شهید عباسپور', type: 'متاهلی', ownership: 'استیجاری', mgmt: 'مشارکتی', units: 6, families: 6 },
+    { id: 'avini', name: 'آوینی', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۱۲۰' },
+    { id: 'darband', name: 'دربند', type: 'مجردی', ownership: 'استیجاری', mgmt: 'دولتی', units: '—', families: '۲۴۷' },
+    { id: 'bigmohammadi', name: 'بیگ محمدی', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۹۰' },
+    { id: 'narges', name: 'نرگس', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۱۴۴' },
+    { id: 'mousavi', name: 'موسوی', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۱۲۴' },
+    { id: 'amirabad', name: 'امیرآباد', type: 'مجردی', ownership: 'استیجاری', mgmt: 'مشارکتی', units: '—', families: '۱۱۰' },
+    { id: 'alzahra', name: 'الزهرا (س)', type: 'مجردی', ownership: 'استیجاری', mgmt: 'دولتی', units: '—', families: '۹۰۶' },
+    { id: 'toos', name: 'طوس', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۷۲' },
+    { id: 'rahimi', name: 'رحیمی', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۱۳۵' },
+    { id: 'ferdows', name: 'فردوس', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۲۱۶' },
+    { id: 'somayeh', name: 'سمیه', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۳۸۸' },
+    { id: 'rastak', name: 'رستاک', type: 'مجردی', ownership: 'استیجاری', mgmt: 'مشارکتی', units: '—', families: '۱۴۲' },
+    { id: 'zeinab', name: 'زینب', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۲۱۰' },
+    { id: 'emamali', name: 'امام علی', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۶۷۳' },
+    { id: 'danesh', name: 'دانش', type: 'مجردی', ownership: 'ملکی', mgmt: 'دولتی', units: '—', families: '۲۰۵' },
+    { id: 'sarshar', name: 'سرشار', type: 'مجردی', ownership: 'استیجاری', mgmt: 'مشارکتی', units: '—', families: '۲۷۰' }
+];
+
+const SECTIONS_MOTAAHALI = [
+    { title: '۱- استحکام بنا', weight: '۱۰۰ امتیاز', items: [
+        { sub: '۱-۱ تأیید فنی ساختمان', w: 5, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۲-۱ پایداری لرزه‌ای', w: 5, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۳-۱ عمر ساختمان', w: 10, self: 1, options: [{label:'بالای ۳۲ سال', value:1}, {label:'۳۱-۲۴ سال', value:2}, {label:'۲۳-۱۶ سال', value:3}, {label:'۱۵-۸ سال', value:4}, {label:'۷-۱ سال', value:6}] }
+    ]},
+    { title: '۲- تأسیسات مکانیکی ساختمان', weight: '۱۳۶ امتیاز', items: [
+        { sub: '۱-۲ موتورخانه', w: 6, self: 5, options: [{label:'۱', value:1}, {label:'۲', value:2}, {label:'۳', value:3}, {label:'۴', value:4}, {label:'۵', value:5}] },
+        { sub: '۲-۲ سیستم گرمایش', w: 5, self: 4, options: [{label:'ندارد', value:0}, {label:'بخاری گازی', value:1}, {label:'ایرواشر', value:2}, {label:'شوفاژ و فن‌کوئل', value:4}, {label:'داکت اسپیلت/کف', value:5}] },
+        { sub: '۳-۲ سیستم سرمایش', w: 5, self: 1, options: [{label:'ندارد', value:0}, {label:'کولر آبی', value:1}, {label:'ایرواشر', value:2}, {label:'اسپیلت/داکت', value:3}, {label:'چیلر/فن‌کوئل/کولر گازی', value:5}] },
+        { sub: '۴-۲ سیستم آبرسانی', w: 6, self: 4, options: [{label:'مخازن ذخیره', value:2}, {label:'چاه و پمپ', value:3}, {label:'شبکه شهری', value:4}] },
+        { sub: '۵-۲ مدیریت فاضلاب', w: 3, self: 4, options: [{label:'چاه جذبی', value:3}, {label:'اگوی شهری', value:4}] },
+        { sub: '۶-۲ سیستم گازرسانی', w: 5, self: 3, options: [{label:'کپسول گاز', value:2}, {label:'شبکه گاز', value:3}, {label:'تأییدیه مرجع', value:4}] }
+    ]},
+    { title: '۳- تأسیسات برق ساختمان', weight: '۸۰ امتیاز', items: [
+        { sub: '۱-۳ تابلو برق', w: 3, self: 5, options: [{label:'ندارد', value:0}, {label:'استاندارد دارد', value:5}] },
+        { sub: '۲-۳ سیستم ارت', w: 2, self: 5, options: [{label:'ندارد', value:0}, {label:'فعال دارد', value:5}] },
+        { sub: '۳-۳ پریزهای ضد آب', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۴-۳ برق اضطراری', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۵-۳ یو پی اس', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۶-۳ ایمنی سیم‌کشی', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
+        { sub: '۷-۳ کلید محافظ جان', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] }
+    ]},
+    { title: '۴- آسانسورها و خروج اضطراری', weight: '۶۴ امتیاز', items: [
+        { sub: '۱-۴ راه‌پله اضطراری', w: 6, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۲-۴ درب اضطراری', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۳-۴ ایمنی آسانسور', w: 4, self: 3, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
+        { sub: '۴-۴ خدمات سرویس و بیمه آسانسور', w: 4, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد (یا فاقد آسانسور)', value:4}] }
+    ]},
+    { title: '۵- تأسیسات و تجهیزات ایمنی و بهداشتی', weight: '۱۷۴ امتیاز', items: [
+        { sub: '۱-۵ سیستم نشت گاز', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
+        { sub: '۲-۵ سیستم اعلان حریق', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۳-۵ سیستم اطفای حریق', w: 4, self: 3, options: [{label:'ندارد', value:0}, {label:'سایر', value:1}, {label:'آبفشان سقفی', value:2}, {label:'کپسول آتش‌نشانی', value:3}] },
+        { sub: '۴-۵ حصارکشی محوطه', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۵-۵ حفاظ پنجره‌ها', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۶-۵ حفاظ راه‌پله‌ها', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۷-۵ حفاظ بالکن‌ها و تراس‌ها', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۸-۵ ترمز پله', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۹-۵ تهویه مناسب', w: 4, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۱۰-۵ قطع اضطراری منابع انرژی', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۱۱-۵ دوربین مدار بسته', w: 4, self: 2, options: [{label:'ندارد', value:0}, {label:'محیط پیرامونی', value:1}, {label:'ورودی ساختمان', value:1}, {label:'ورودی خوابگاه', value:2}] },
+        { sub: '۱۲-۵ گیت کنترل تردد', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۱۳-۵ روشنایی خوابگاه', w: 4, self: 3, options: [{label:'نامناسب', value:0}, {label:'تقریباً مناسب', value:1}, {label:'مناسب', value:3}] },
+        { sub: '۱۴-۵ سمپاشی', w: 3, self: 2, options: [{label:'انجام نمی‌شود', value:0}, {label:'دوره‌ای انجام می‌شود', value:2}] },
+        { sub: '۱۵-۵ سر و صدا', w: 3, self: 2, options: [{label:'وجود دارد', value:0}, {label:'وجود ندارد', value:2}] },
+        { sub: '۱۶-۵ علائم و تابلوهای ایمنی', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
+        { sub: '۱۷-۵ جعبه کمک‌های اولیه', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] }
+    ]},
+    { title: '۶- طراحی خوابگاه', weight: '۳۷۸ امتیاز', items: [
+        { sub: '۱-۶ مناسب‌سازی معلولین', w: 4, self: 6, options: [{label:'خیر', value:0}, {label:'بله', value:6}] },
+        { sub: '۲-۶ هال اختصاصی هر سوئیت', w: 2, self: 5, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۳-۶ آشپزخانه داخل سوئیت', w: 4, self: 5, options: [{label:'ندارد', value:0}, {label:'دارد', value:6}] },
+        { sub: '۴-۶ کلوزت داخل اتاق خواب', w: 2, self: 5, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۵-۶ مساحت واحد/سوئیت', w: 1, self: 50, options: [{label:'زیر ۵۰ متر', value:30}, {label:'۵۰ تا ۶۰ متر', value:50}, {label:'۷۰ متر به بالا', value:70}] },
+        { sub: '۶-۶ فضای بازی کودکان', w: 6, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
+        { sub: '۷-۶ مهد کودک یا دسترسی', w: 4, self: 5, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۸-۶ موقعیت خوابگاه', w: 2, self: 1, options: [{label:'خارج پردیس', value:1}, {label:'داخل پردیس', value:10}] },
+        { sub: '۹-۶ فروشگاه و نانوایی', w: 3, self: 10, options: [{label:'ندارد', value:0}, {label:'دارد', value:10}] },
+        { sub: '۱۰-۶ پارکینگ درون خوابگاه', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۱۱-۶ اتاق مشاوره و مشاور خانواده', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۱۲-۶ فضای سبز و نورپردازی', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۱۳-۶ سالن اجتماعات چندمنظوره', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۱۴-۶ سالن ورزشی', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۱۵-۶ نصب تابلو قوانین', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۱۶-۶ علائم و تابلوهای ایمنی', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۱۷-۶ علائم راهنمای ساختمان', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۱۸-۶ اینترنت و پوشش‌دهی', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'فقط مکان عمومی', value:2}, {label:'داخل اتاق‌ها', value:4}, {label:'کل ساختمان', value:6}] },
+        { sub: '۱۹-۶ رنگ‌آمیزی', w: 2, self: 8, options: [{label:'نامناسب', value:1}, {label:'تقریباً مناسب', value:4}, {label:'مناسب', value:8}] },
+        { sub: '۲۰-۶ کاربری ساختمان', w: 4, self: 10, options: [{label:'غیرخوابگاهی', value:4}, {label:'خوابگاهی', value:10}] }
+    ]},
+    { title: '۷- امنیت و سیستم‌های مدیریتی', weight: '۶۸ امتیاز', items: [
+        { sub: '۱-۷ بافت شهری', w: 2, self: 3, options: [{label:'در محدوده آسیب', value:0}, {label:'محدوده مناسب', value:3}] },
+        { sub: '۲-۷ وضعیت امنیتی خوابگاه', w: 6, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۳-۷ دسترسی خوابگاه', w: 3, self: 4, options: [{label:'نامناسب', value:0}, {label:'مناسب و ناکافی', value:3}, {label:'نزدیک حمل‌ونقل عمومی', value:4}] },
+        { sub: '۴-۷ روشنایی اطراف', w: 2, self: 4, options: [{label:'نامناسب', value:0}, {label:'تقریباً مناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۵-۷ مدیریت پسماند', w: 3, self: 0, options: [{label:'خیر', value:0}, {label:'دارد', value:2}] },
+        { sub: '۶-۷ مدیریت HSE', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
+        { sub: '۷-۷ مدیریت انرژی', w: 2, self: 0, options: [{label:'خیر', value:0}, {label:'دارد', value:2}] }
+    ]}
+];
+
+const SECTIONS_MOJARAD = [
+    { title: '۱- استحکام بنا', weight: '۱۰۰ امتیاز', items: [
+        { sub: '۱-۱ تأیید فنی ساختمان', w: 5, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۲-۱ پایداری لرزه‌ای', w: 5, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۳-۱ عمر ساختمان', w: 10, self: 1, options: [{label:'بالای ۳۲ سال', value:1}, {label:'۳۱-۲۴ سال', value:2}, {label:'۲۳-۱۶ سال', value:3}, {label:'۱۵-۸ سال', value:4}, {label:'۷-۱ سال', value:6}] }
+    ]},
+    { title: '۲- تأسیسات مکانیکی ساختمان', weight: '۱۳۶ امتیاز', items: [
+        { sub: '۱-۲ موتورخانه', w: 6, self: 5, options: [{label:'۱', value:1}, {label:'۲', value:2}, {label:'۳', value:3}, {label:'۴', value:4}, {label:'۵', value:5}] },
+        { sub: '۲-۲ سیستم گرمایش', w: 5, self: 4, options: [{label:'ندارد', value:0}, {label:'بخاری گازی', value:1}, {label:'ایرواشر', value:2}, {label:'شوفاژ و فن‌کوئل', value:4}, {label:'داکت اسپیلت/کف', value:5}] },
+        { sub: '۳-۲ سیستم سرمایش', w: 5, self: 1, options: [{label:'ندارد', value:0}, {label:'کولر آبی', value:1}, {label:'ایرواشر', value:2}, {label:'اسپیلت/داکت', value:3}, {label:'چیلر/فن‌کوئل/کولر گازی', value:5}] },
+        { sub: '۴-۲ سیستم آبرسانی', w: 6, self: 4, options: [{label:'مخازن ذخیره', value:2}, {label:'چاه و پمپ', value:3}, {label:'شبکه شهری', value:4}] },
+        { sub: '۵-۲ مدیریت فاضلاب', w: 3, self: 3, options: [{label:'چاه جذبی', value:3}, {label:'اگوی شهری', value:4}] },
+        { sub: '۶-۲ سیستم گازرسانی', w: 5, self: 3, options: [{label:'کپسول گاز', value:2}, {label:'شبکه گاز', value:3}, {label:'تأییدیه مرجع', value:4}] }
+    ]},
+    { title: '۳- تأسیسات برق ساختمان', weight: '۸۰ امتیاز', items: [
+        { sub: '۱-۳ تابلو برق', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'استاندارد دارد', value:5}] },
+        { sub: '۲-۳ سیستم ارت', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'فعال دارد', value:5}] },
+        { sub: '۳-۳ پریزهای ضد آب', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۴-۳ برق اضطراری', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۵-۳ یو پی اس', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۶-۳ ایمنی سیم‌کشی', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
+        { sub: '۷-۳ کلید محافظ جان', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] }
+    ]},
+    { title: '۴- آسانسورها و خروج اضطراری', weight: '۶۴ امتیاز', items: [
+        { sub: '۱-۴ راه‌پله اضطراری', w: 6, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۲-۴ درب اضطراری', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۳-۴ ایمنی آسانسور', w: 4, self: 3, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
+        { sub: '۴-۴ خدمات تعمیر و نگهداری', w: 2, self: 4, options: [{label:'انجام نمی‌شود', value:0}, {label:'دوره‌ای انجام می‌شود', value:4}, {label:'فاقد آسانسور', value:2}] },
+        { sub: '۵-۴ بیمه آسانسور', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] }
+    ]},
+    { title: '۵- تأسیسات و تجهیزات ایمنی و بهداشتی', weight: '۱۷۴ امتیاز', items: [
+        { sub: '۱-۵ سیستم نشت گاز', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
+        { sub: '۲-۵ سیستم اعلان حریق', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
+        { sub: '۳-۵ سیستم اطفای حریق', w: 4, self: 3, options: [{label:'ندارد', value:0}, {label:'سایر', value:1}, {label:'آبفشان سقفی', value:2}, {label:'کپسول آتش‌نشانی', value:3}] },
+        { sub: '۴-۵ حصارکشی محوطه', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۵-۵ حفاظ پنجره‌ها', w: 2, self: 2, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۶-۵ حفاظ راه‌پله‌ها', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۷-۵ حفاظ بالکن‌ها و تراس‌ها', w: 2, self: 2, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۸-۵ نردبان و حفاظ تخت‌خواب‌ها', w: 4, self: 2, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۹-۵ تهویه مناسب', w: 4, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۱۰-۵ قطع اضطراری منابع انرژی', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۱۱-۵ دوربین مدار بسته', w: 4, self: 2, options: [{label:'ندارد', value:0}, {label:'محیط پیرامونی', value:1}, {label:'ورودی ساختمان', value:1}, {label:'ورودی خوابگاه', value:2}] },
+        { sub: '۱۲-۵ گیت کنترل تردد', w: 4, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۱۳-۵ روشنایی خوابگاه', w: 4, self: 3, options: [{label:'نامناسب', value:0}, {label:'تقریباً مناسب', value:1}, {label:'مناسب', value:3}] },
+        { sub: '۱۴-۵ وضعیت سمپاشی', w: 3, self: 2, options: [{label:'انجام نمی‌شود', value:0}, {label:'دوره‌ای انجام می‌شود', value:2}] },
+        { sub: '۱۵-۵ سر و صدا', w: 3, self: 2, options: [{label:'وجود دارد', value:0}, {label:'وجود ندارد', value:2}] },
+        { sub: '۱۶-۵ علائم و تابلوهای ایمنی', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
+        { sub: '۱۷-۵ جعبه کمک‌های اولیه', w: 2, self: 3, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] }
+    ]},
+    { title: '۶- طراحی خوابگاه (مجردی)', weight: '۱۸۴ امتیاز', items: [
+        { sub: '۱-۶ سرانه سرویس بهداشتی', w: 4, self: 2, options: [{label:'بیشتر از ۱۵ نفر', value:1}, {label:'۱۲ تا ۱۴ نفر', value:2}, {label:'۹ تا ۱۱ نفر', value:3}, {label:'۶ تا ۸ نفر', value:4}] },
+        { sub: '۲-۶ سرانه دوش حمام', w: 4, self: 2, options: [{label:'بیشتر از ۱۵ نفر', value:1}, {label:'۱۲ تا ۱۴ نفر', value:2}, {label:'۹ تا ۱۱ نفر', value:3}, {label:'۶ تا ۸ نفر', value:4}] },
+        { sub: '۳-۶ سرویس بهداشتی در هر طبقه', w: 2, self: 3, options: [{label:'خیر', value:0}, {label:'بله', value:3}] },
+        { sub: '۴-۶ حمام در هر طبقه', w: 2, self: 3, options: [{label:'خیر', value:0}, {label:'بله', value:3}] },
+        { sub: '۵-۶ آشپزخانه در هر طبقه', w: 2, self: 3, options: [{label:'خیر', value:0}, {label:'بله', value:3}] },
+        { sub: '۶-۶ لابی (اتاق ملاقات)', w: 2, self: 0, options: [{label:'خیر', value:0}, {label:'بله', value:3}] },
+        { sub: '۷-۶ سرانه فیزیکی هر نفر', w: 5, self: 2, options: [{label:'کمتر از ۳ متر', value:0}, {label:'۳ تا ۳.۵ متر', value:1}, {label:'۳.۵ تا ۴ متر', value:2}, {label:'۴ تا ۵ متر', value:3}, {label:'بیشتر از ۵ متر', value:4}] },
+        { sub: '۸-۶ سالن مطالعه', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۹-۶ اتاق رایانه', w: 2, self: 2, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
+        { sub: '۱۰-۶ اتاق ویژه مهمان', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
+        { sub: '۱۱-۶ اتاق فعالیت‌های دانشجویی', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'اتاق شورای صنفی', value:2}, {label:'اتاق فعالیت‌های فرهنگی', value:2}] },
+        { sub: '۱۲-۶ اتاق مشاوره', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۱۳-۶ نمازخانه', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۱۴-۶ سالن ورزشی', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۱۵-۶ وضعیت پوشش اینترنت', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'فقط مکان عمومی', value:1}, {label:'داخل اتاق‌ها', value:2}, {label:'کل ساختمان', value:4}] },
+        { sub: '۱۶-۶ نصب تابلو قوانین', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۱۷-۶ علائم و تابلوهای راهنمای ساختمان', w: 2, self: 4, options: [{label:'وجود ندارد', value:0}, {label:'مناسب ولی ناکافی', value:2}, {label:'برای هر بخش وجود دارد', value:4}] },
+        { sub: '۱۸-۶ رختشورخانه', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۱۹-۶ اتاق تلویزیون', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۲۰-۶ رنگ‌آمیزی', w: 3, self: 3, options: [{label:'نامناسب', value:0}, {label:'تقریباً مناسب', value:3}, {label:'مناسب', value:4}] }
+    ]},
+    { title: '۷- امکانات رفاهی فردی و عمومی', weight: '۲۰۴ امتیاز', items: [
+        { sub: '۱-۷ تعداد تخت‌خواب', w: 5, self: 4, options: [{label:'کمتر از ۷۵٪', value:0}, {label:'۷۵-۹۰٪', value:1}, {label:'۹۰-۱۰۰٪', value:2}, {label:'۱۰۰٪ ظرفیت', value:4}] },
+        { sub: '۲-۷ کیفیت تخت‌خواب', w: 3, self: 4, options: [{label:'ناسالم و مستهلک', value:0}, {label:'سالم و غیرمستهلک', value:4}] },
+        { sub: '۳-۷ تشک', w: 4, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:4}] },
+        { sub: '۴-۷ میز تحریر و صندلی', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:4}] },
+        { sub: '۵-۷ کمد البسه', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:4}] },
+        { sub: '۶-۷ فرش اتاق', w: 2, self: 3, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:2}, {label:'مناسب و ناکافی', value:3}, {label:'مناسب و کافی', value:4}] },
+        { sub: '۷-۷ موکت', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:2}, {label:'مناسب و ناکافی', value:3}, {label:'مناسب و کافی', value:4}] },
+        { sub: '۸-۷ جاکفشی', w: 2, self: 4, options: [{label:'بسیار ناکافی', value:1}, {label:'ناکافی', value:2}, {label:'مناسب و کافی', value:4}] },
+        { sub: '۹-۷ رخت‌آویز', w: 2, self: 4, options: [{label:'بسیار ناکافی', value:1}, {label:'ناکافی', value:2}, {label:'مناسب و کافی', value:4}] },
+        { sub: '۱۰-۷ پرده', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:2}, {label:'مناسب و ناکافی', value:3}, {label:'مناسب و کافی', value:4}] },
+        { sub: '۱۱-۷ سرانه یخچال', w: 5, self: 3, options: [{label:'۰.۵-۱ فوت', value:1}, {label:'۱-۱.۵ فوت', value:2}, {label:'۱.۵-۲ فوت', value:3}, {label:'۲ فوت یا بیشتر', value:4}] },
+        { sub: '۱۲-۷ آب سردکن', w: 3, self: 3, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:2}, {label:'مناسب و ناکافی', value:3}, {label:'مناسب و کافی', value:4}] },
+        { sub: '۱۳-۷ سرانه جاروبرقی', w: 3, self: 2, options: [{label:'ندارد', value:0}, {label:'۴۱ نفر به بالا', value:1}, {label:'۲۱-۴۱ نفر', value:2}, {label:'۲۰ نفر و کمتر', value:4}] },
+        { sub: '۱۴-۷ سرانه ماشین لباسشویی', w: 3, self: 2, options: [{label:'ندارد', value:0}, {label:'۴۱ نفر به بالا', value:1}, {label:'۲۱-۴۱ نفر', value:2}, {label:'۲۰ نفر و کمتر', value:4}] },
+        { sub: '۱۵-۷ سرانه اتو برقی', w: 2, self: 2, options: [{label:'ندارد', value:0}, {label:'۳۳ نفر به بالا', value:1}, {label:'۲۴-۳۲ نفر', value:2}, {label:'۱۶-۲۴ نفر', value:3}, {label:'۱۶ نفر و کمتر', value:4}] },
+        { sub: '۱۶-۷ اجاق گاز', w: 3, self: 4, options: [{label:'۱۰ نفر و بیشتر', value:0}, {label:'۹-۱۰ نفر', value:1}, {label:'۸-۹ نفر', value:2}, {label:'۶-۸ نفر', value:3}, {label:'کمتر از ۶ نفر', value:4}] },
+        { sub: '۱۷-۷ واکس برقی', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:4}] },
+        { sub: '۱۸-۷ مایکروفر', w: 2, self: 4, options: [{label:'۴۱ نفر به بالا', value:1}, {label:'۳۱-۴۱ نفر', value:2}, {label:'۲۱-۳۱ نفر', value:3}, {label:'۲۰ نفر و کمتر', value:4}] }
+    ]},
+    { title: '۸- امنیت و سیستم‌های مدیریتی', weight: '۵۸ امتیاز', items: [
+        { sub: '۱-۸ بافت شهری', w: 2, self: 3, options: [{label:'در محدوده آسیب', value:0}, {label:'محدوده مناسب', value:3}] },
+        { sub: '۲-۸ اشراف ساختمان مجاور', w: 2, self: 3, options: [{label:'مشرف هستند', value:0}, {label:'مشرف نیستند', value:3}] },
+        { sub: '۳-۸ وضعیت امنیتی', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
+        { sub: '۴-۸ دسترسی خوابگاه', w: 3, self: 4, options: [{label:'نامناسب', value:0}, {label:'مناسب و ناکافی', value:3}, {label:'نزدیک حمل‌ونقل عمومی', value:4}] },
+        { sub: '۵-۸ روشنایی اطراف خوابگاه', w: 2, self: 4, options: [{label:'نامناسب', value:0}, {label:'تقریباً مناسب', value:2}, {label:'مناسب', value:4}] },
+        { sub: '۶-۸ مدیریت پسماند', w: 3, self: 2, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
+        { sub: '۷-۸ مدیریت HSE', w: 2, self: 2, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
+        { sub: '۸-۸ مدیریت انرژی', w: 2, self: 0, options: [{label:'خیر', value:0}, {label:'دارد', value:2}] }
+    ]}
+];
+
+let currentEvaluator = null;
+let currentDorm = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const sel = document.getElementById('evaluatorSelect');
+    EVALUATORS.forEach((ev, i) => {
+        const o = document.createElement('option');
+        o.value = i; o.textContent = `${ev.name} — ${ev.uni}`;
+        sel.appendChild(o);
+    });
+    const dsel = document.getElementById('dormSelect');
+    DORMS.forEach(d => {
+        const o = document.createElement('option');
+        o.value = d.id; o.textContent = `${d.name} — ${d.type}`;
+        dsel.appendChild(o);
+    });
+});
+
+function checkLoginReady() {
+    document.getElementById('loginBtn').disabled = document.getElementById('evaluatorSelect').value === '';
+}
+
+function login() {
+    const idx = document.getElementById('evaluatorSelect').value;
+    currentEvaluator = EVALUATORS[parseInt(idx)];
+    document.getElementById('currentEvaluatorName').textContent = currentEvaluator.name;
+    document.getElementById('currentEvaluatorUni').textContent = currentEvaluator.uni;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('evalScreen').style.display = 'block';
+}
+
+function logout() {
+    if (!confirm('از حساب خارج می‌شوید؟')) return;
+    location.reload();
+}
+
+function loadDormitory(id) {
+    currentDorm = DORMS.find(d => d.id === id);
+    if (!currentDorm) return;
+    document.getElementById('infoUni').textContent = 'علوم پزشکی شهید بهشتی';
+    document.getElementById('infoDorm').textContent = currentDorm.name;
+    document.getElementById('infoType').textContent = currentDorm.type;
+    document.getElementById('infoOwn').textContent = currentDorm.ownership;
+    document.getElementById('infoMgmt').textContent = currentDorm.mgmt;
+    document.getElementById('infoUnits').textContent = currentDorm.units;
+    document.getElementById('infoFamilies').textContent = currentDorm.families;
+    document.getElementById('dormInfo').style.display = 'grid';
+
+    const sections = (currentDorm.type === 'متاهلی') ? SECTIONS_MOTAAHALI : SECTIONS_MOJARAD;
+    renderForm(sections);
+
+    document.getElementById('grandTotalBox').style.display = 'flex';
+    document.getElementById('hintBox').style.display = 'block';
+    document.getElementById('saveBar').style.display = 'grid';
+    document.getElementById('submitBtn').style.display = 'block';
+    document.getElementById('reportSection').style.display = 'none';
+}
+
+function renderForm(sections) {
+    const fc = document.getElementById('formContainer');
+    fc.innerHTML = '';
+    sections.forEach((sec, si) => {
+        const acc = document.createElement('div');
+        acc.className = 'accordion';
+        acc.innerHTML = `<div class="accordion-header" onclick="toggleAcc(this)"><span>${sec.title}</span><span><span class="weight">${sec.weight}</span> <span class="arrow">▼</span></span></div>`;
+        const body = document.createElement('div');
+        body.className = 'accordion-body';
+        const list = document.createElement('div');
+        list.className = 'card-list';
+        sec.items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            let opts = `<option value="">— انتخاب —</option>`;
+            item.options.forEach(o => opts += `<option value="${o.value}">${o.label} (${o.value})</option>`);
+            card.innerHTML = `
+                <div class="item-title"><span>${item.sub}</span><span class="w-badge">وزن: ${item.w}</span></div>
+                <div class="item-row"><span class="lbl">خوداظهاری:</span><span class="self-badge">${item.self}</span></div>
+                <div class="item-row" style="flex-direction:column;align-items:stretch;">
+                    <span class="lbl" style="margin-bottom:6px;">نمره ارزیاب:</span>
+                    <select class="score-select empty" data-w="${item.w}" data-self="${item.self}" onchange="onScore(this)">${opts}</select>
+                </div>
+                <input type="text" class="reason-input" placeholder="علت مغایرت...">
+            `;
+            list.appendChild(card);
+        });
+        body.appendChild(list);
+        const tb = document.createElement('div');
+        tb.className = 'total-box';
+        tb.innerHTML = `جمع بخش ${si+1}: <span id="ts${si+1}">۰</span>`;
+        body.appendChild(tb);
+        acc.appendChild(body);
+        fc.appendChild(acc);
+    });
+    setTimeout(() => {
+        const h = document.querySelector('.accordion-header');
+        if (h) toggleAcc(h);
+        calcTotals();
+    }, 30);
+}
+
+function toggleAcc(h) {
+    h.classList.toggle('open');
+    h.nextElementSibling.classList.toggle('open');
+}
+
+function onScore(sel) {
+    const card = sel.closest('.item-card');
+    const reason = card.querySelector('.reason-input');
+    if (sel.value === '') {
+        sel.classList.add('empty');
+        card.classList.remove('discrepancy');
+        reason.classList.remove('active');
+        reason.value = '';
+    } else {
+        sel.classList.remove('empty');
+        const s = parseFloat(sel.dataset.self) || 0;
+        const a = parseFloat(sel.value);
+        if (Math.abs(s - a) > 0.001) {
+            card.classList.add('discrepancy');
+            reason.classList.add('active');
+        } else {
+            card.classList.remove('discrepancy');
+            reason.classList.remove('active');
+            reason.value = '';
+        }
+    }
+    calcTotals();
+}
+
+function calcTotals() {
+    let grand = 0;
+    document.querySelectorAll('.accordion').forEach((acc, i) => {
+        let t = 0;
+        acc.querySelectorAll('.score-select').forEach(s => {
+            const w = parseFloat(s.dataset.w) || 0;
+            const v = s.value === '' ? 0 : parseFloat(s.value);
+            t += w * v;
+        });
+        grand += t;
+        const el = document.getElementById('ts' + (i+1));
+        if (el) el.textContent = fmt(t);
+    });
+    document.getElementById('grand-total').textContent = fmt(grand);
+}
+
+function fmt(n) {
+    if (isNaN(n)) return '۰';
+    return Math.round(n * 100) / 100;
+}
+
+function collectData() {
+    const data = {
+        evaluator: currentEvaluator,
+        dormitory: currentDorm,
+        date: new Date().toLocaleString('fa-IR'),
+        total: document.getElementById('grand-total').textContent,
+        items: []
+    };
+    document.querySelectorAll('.item-card').forEach(card => {
+        const sel = card.querySelector('.score-select');
+        data.items.push({
+            sub: card.querySelector('.item-title span').textContent.trim(),
+            weight: parseFloat(sel.dataset.w),
+            self: parseFloat(sel.dataset.self),
+            assessor: sel.value === '' ? null : parseFloat(sel.value),
+            reason: card.querySelector('.reason-input').value || ''
+        });
+    });
+    return data;
+}
+
+function saveToSite() {
+    if (!currentDorm) { alert('ابتدا خوابگاه را انتخاب کنید.'); return; }
+    const data = collectData();
+    const statusEl = document.getElementById('status');
+    statusEl.textContent = '⏳ در حال ذخیره در سایت...';
+    statusEl.style.color = '#0b6e99';
+
+    fetch(`${SUPABASE_URL}/rest/v1/evaluations`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+            evaluator_name: data.evaluator.name,
+            dorm_name: data.dormitory.name,
+            dorm_type: data.dormitory.type,
+            total_score: data.total,
+            data_json: JSON.stringify(data)
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            statusEl.textContent = '✅ اطلاعات با موفقیت در سایت ذخیره شد.';
+            statusEl.style.color = '#059669';
+        } else {
+            response.text().then(err => {
+                statusEl.textContent = '❌ خطا: ' + err;
+                statusEl.style.color = '#b91c1c';
+            });
+        }
+    })
+    .catch(error => {
+        statusEl.textContent = '❌ خطا در ارتباط با سرور: ' + error.message;
+        statusEl.style.color = '#b91c1c';
+    });
+}
+
+function loadReports() {
+    const reportSection = document.getElementById('reportSection');
+    const reportBody = document.getElementById('reportBody');
+    reportSection.style.display = 'block';
+    reportBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">در حال دریافت اطلاعات...</td></tr>';
+
+    fetch(`${SUPABASE_URL}/rest/v1/evaluations?select=*&order=created_at.desc`, {
+        method: 'GET',
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.length === 0) {
+            reportBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">هیچ گزارشی یافت نشد.</td></tr>';
+            return;
+        }
+        let html = '';
+        data.forEach((item, index) => {
+            let dateStr = item.created_at;
+            try { dateStr = new Date(item.created_at).toLocaleString('fa-IR'); } catch(e) {}
+            html += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.evaluator_name}</td>
+                    <td>${item.dorm_name}</td>
+                    <td>${item.dorm_type}</td>
+                    <td><strong style="color:#0b6e99">${item.total_score}</strong></td>
+                    <td>${dateStr}</td>
+                </tr>
+            `;
+        });
+        reportBody.innerHTML = html;
+    })
+    .catch(err => {
+        reportBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:red;">خطا: ' + err.message + '</td></tr>';
+    });
+}
+
+function downloadExcel() {
+    if (!currentDorm) { alert('ابتدا خوابگاه را انتخاب کنید.'); return; }
+    const data = collectData();
+    const wsData = [
+        ['فرم ارزیابی خوابگاه دانشجویی', '', '', '', '', ''],
+        ['ارزیاب:', data.evaluator.name, '', 'دانشگاه:', data.evaluator.uni, ''],
+        ['خوابگاه:', data.dormitory.name, '', 'نوع:', data.dormitory.type, ''],
+        ['تاریخ:', data.date, '', 'جمع کل:', data.total, ''],
+        [],
+        ['#', 'شاخص', 'وزن', 'خوداظهاری', 'نمره ارزیاب', 'علت مغایرت']
+    ];
+    data.items.forEach((it, i) => {
+        wsData.push([i + 1, it.sub, it.weight, it.self, it.assessor === null ? '—' : it.assessor, it.reason || '']);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    ws['!cols'] = [{ wch: 5 }, { wch: 40 }, { wch: 8 }, { wch: 10 }, { wch: 12 }, { wch: 25 }];
+    ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } },
+        { s: { r: 1, c: 1 }, e: { r: 1, c: 2 } },
+        { s: { r: 1, c: 4 }, e: { r: 1, c: 5 } },
+        { s: { r: 2, c: 1 }, e: { r: 2, c: 2 } },
+        { s: { r: 2, c: 4 }, e: { r: 2, c: 5 } },
+        { s: { r: 3, c: 1 }, e: { r: 3, c: 2 } },
+        { s: { r: 3, c: 4 }, e: { r: 3, c: 5 } }
+    ];
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let R = range.s.r; R <= range.e.r; R++) {
+        for (let C = range.s.c; C <= range.e.c; C++) {
+            const addr = XLSX.utils.encode_cell({ r: R, c: C });
+            if (!ws[addr]) ws[addr] = { t: 's', v: '' };
+            ws[addr].s = {
+                font: { name: 'Tahoma', sz: 10, color: { rgb: '1E2B3C' } },
+                alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                border: { top: { style: 'thin', color: { rgb: '9CA3AF' } }, bottom: { style: 'thin', color: { rgb: '9CA3AF' } }, left: { style: 'thin', color: { rgb: '9CA3AF' } }, right: { style: 'thin', color: { rgb: '9CA3AF' } } },
+                fill: { fgColor: { rgb: 'FFFFFF' } }
+            };
+            if (R === 0) {
+                ws[addr].s.font = { name: 'Tahoma', sz: 14, bold: true, color: { rgb: 'FFFFFF' } };
+                ws[addr].s.fill = { fgColor: { rgb: '1E3A5F' } };
+            }
+            if (R === 5) {
+                ws[addr].s.font = { name: 'Tahoma', sz: 11, bold: true, color: { rgb: 'FFFFFF' } };
+                ws[addr].s.fill = { fgColor: { rgb: '0B6E99' } };
+            }
+            if (R > 5 && R % 2 === 0) {
+                ws[addr].s.fill = { fgColor: { rgb: 'F8FAFC' } };
+            }
+            if (R > 5 && C === 5) {
+                const selfVal = data.items[R - 6]?.self;
+                const assVal = data.items[R - 6]?.assessor;
+                if (assVal !== null && selfVal !== assVal) {
+                    ws[addr].s.fill = { fgColor: { rgb: 'FFF7E6' } };
+                    ws[addr].s.font = { name: 'Tahoma', sz: 10, bold: true, color: { rgb: 'B45309' } };
+                }
+            }
+        }
+    }
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'ارزیابی');
+    XLSX.writeFile(wb, `ارزیابی_${currentDorm.name}.xlsx`);
+}
+
+function downloadPDF() {
+    if (!currentDorm) { alert('ابتدا خوابگاه را انتخاب کنید.'); return; }
+    const printDiv = document.createElement('div');
+    printDiv.style.padding = '20px';
+    printDiv.style.background = '#fff';
+    printDiv.style.direction = 'rtl';
+    printDiv.style.fontFamily = 'Tahoma';
+    
+    let html = `
+        <h2 style="text-align:center; color:#1e3a5f;">فرم ارزیابی خوابگاه دانشجویی</h2>
+        <p><b>ارزیاب:</b> ${currentEvaluator.name} | <b>دانشگاه:</b> ${currentEvaluator.uni}</p>
+        <p><b>خوابگاه:</b> ${currentDorm.name} | <b>نوع:</b> ${currentDorm.type} | <b>جمع کل:</b> ${document.getElementById('grand-total').textContent}</p>
+        <table style="width:100%; border-collapse:collapse; margin-top:20px; font-size:12px;">
+            <thead style="background:#1e3a5f; color:#fff;">
+                <tr>
+                    <th style="border:1px solid #ccc; padding:8px;">#</th>
+                    <th style="border:1px solid #ccc; padding:8px;">شاخص</th>
+                    <th style="border:1px solid #ccc; padding:8px;">وزن</th>
+                    <th style="border:1px solid #ccc; padding:8px;">خوداظهاری</th>
+                    <th style="border:1px solid #ccc; padding:8px;">نمره ارزیاب</th>
+                    <th style="border:1px solid #ccc; padding:8px;">علت مغایرت</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    document.querySelectorAll('.item-card').forEach((card, i) => {
+        const title = card.querySelector('.item-title span').textContent;
+        const sel = card.querySelector('.score-select');
+        const w = sel.dataset.w;
+        const self = sel.dataset.self;
+        const assessor = sel.value || '—';
+        const reason = card.querySelector('.reason-input').value || '';
+        const bgColor = (sel.value && sel.value != self) ? '#fff9e6' : '#fff';
+        html += `
+            <tr style="background:${bgColor};">
+                <td style="border:1px solid #ccc; padding:6px; text-align:center;">${i+1}</td>
+                <td style="border:1px solid #ccc; padding:6px;">${title}</td>
+                <td style="border:1px solid #ccc; padding:6px; text-align:center;">${w}</td>
+                <td style="border:1px solid #ccc; padding:6px; text-align:center;">${self}</td>
+                <td style="border:1px solid #ccc; padding:6px; text-align:center; font-weight:bold;">${assessor}</td>
+                <td style="border:1px solid #ccc; padding:6px;">${reason}</td>
+            </tr>
+        `;
+    });
+    html += `</tbody></table>`;
+    printDiv.innerHTML = html;
+
+    html2pdf().from(printDiv).set({
+        margin: 10,
+        filename: `ارزیابی_${currentDorm.name}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).save();
+}
+
+function submitForm() {
+    if (!currentEvaluator || !currentDorm) { alert('اطلاعات ناقص است.'); return; }
+    alert('✅ فرم نهایی شد. حالا می‌توانید ذخیره کنید، اکسل بگیرید یا PDF بگیرید.');
+}
+</script>
+</body>
+</html>
