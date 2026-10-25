@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>اعتبارسنجی خوابگاه‌ها</title>
+    <!-- کتابخانه‌های مورد نیاز -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
@@ -139,12 +140,10 @@
 
 <script>
 // ==========================================================
-// ⚠️⚠️⚠️ تنظیمات دیتابیس (فقط این یک خط را اصلاح کنید) ⚠️⚠️⚠️
+// تنظیمات دیتابیس (کلید قرار داده شد)
 // ==========================================================
 const SUPABASE_URL = "https://ywrpcwpylbzgqassshxt.supabase.co"; 
-
-// ⚠️ اینجا باید کلید anon خودتان را بگذارید (کلید طولانی که با eyJ شروع می‌شود) ⚠️
-const SUPABASE_KEY = "اینجا_کلید_طولانی_anon_خود_را_بگذارید"; 
+const SUPABASE_KEY = "sb_publishable_CU4gHDf_NUWD-Smn3kb4MQ_SrFFYCFA"; 
 // ==========================================================
 
 const EVALUATORS = [
@@ -547,7 +546,6 @@ function saveToSite() {
     // دقت کنید نام جدول اینجا 'evaluations' است
     fetch(`${SUPABASE_URL}/rest/v1/evaluations`, {
         method: 'POST',
-        // تنظیمات زیر برای دور زدن خطای امنیتی مرورگر (CORS) است
         mode: 'no-cors', 
         headers: {
             'Content-Type': 'application/json',
@@ -564,8 +562,6 @@ function saveToSite() {
         })
     })
     .then(response => {
-        // چون از no-cors استفاده کردیم، مرورگر جواب دقیق سرور را نمی‌دهد
-        // اما اگر خطای شبکه نده، یعنی اطلاعات ارسال شده است
         statusEl.textContent = '✅ اطلاعات ارسال شد! (لطفاً برای اطمینان در دیتابیس چک کنید)';
         statusEl.style.color = '#059669';
     })
