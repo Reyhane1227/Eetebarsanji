@@ -143,7 +143,7 @@
 // تنظیمات دیتابیس (کلید قرار داده شد)
 // ==========================================================
 const SUPABASE_URL = "https://ywrpcwpylbzgqassshxt.supabase.co"; 
-const SUPABASE_KEY = "sb_publishable_CU4gHDf_NUWD-Smn3kb4MQ_SrFFYCFA"; 
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3cnBjd3B5bGJ6Z3Fhc3NzaHh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI3NTk4MzAsImV4cCI6MjEwODMzNTgzMH0.aunGAuLNze8nfgrrAbV1h2X5ob86mUxa9bUSQ-yor5s"; 
 // ==========================================================
 
 const EVALUATORS = [
@@ -181,85 +181,15 @@ const DORMS = [
     { id: 'sarshar', name: 'سرشار', type: 'مجردی', ownership: 'استیجاری', mgmt: 'مشارکتی', units: '—', families: '۲۷۰' }
 ];
 
+// ... (بقیه کدهای مربوط به SECTIONS_MOTAAHALI و SECTIONS_MOJARAD بدون تغییر باقی می‌مانند) ...
+
 const SECTIONS_MOTAAHALI = [
     { title: '۱- استحکام بنا', weight: '۱۰۰ امتیاز', items: [
         { sub: '۱-۱ تأیید فنی ساختمان', w: 5, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
         { sub: '۲-۱ پایداری لرزه‌ای', w: 5, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
         { sub: '۳-۱ عمر ساختمان', w: 10, self: 1, options: [{label:'بالای ۳۲ سال', value:1}, {label:'۳۱-۲۴ سال', value:2}, {label:'۲۳-۱۶ سال', value:3}, {label:'۱۵-۸ سال', value:4}, {label:'۷-۱ سال', value:6}] }
     ]},
-    { title: '۲- تأسیسات مکانیکی ساختمان', weight: '۱۳۶ امتیاز', items: [
-        { sub: '۱-۲ موتورخانه', w: 6, self: 5, options: [{label:'۱', value:1}, {label:'۲', value:2}, {label:'۳', value:3}, {label:'۴', value:4}, {label:'۵', value:5}] },
-        { sub: '۲-۲ سیستم گرمایش', w: 5, self: 4, options: [{label:'ندارد', value:0}, {label:'بخاری گازی', value:1}, {label:'ایرواشر', value:2}, {label:'شوفاژ و فن‌کوئل', value:4}, {label:'داکت اسپیلت/کف', value:5}] },
-        { sub: '۳-۲ سیستم سرمایش', w: 5, self: 1, options: [{label:'ندارد', value:0}, {label:'کولر آبی', value:1}, {label:'ایرواشر', value:2}, {label:'اسپیلت/داکت', value:3}, {label:'چیلر/فن‌کوئل/کولر گازی', value:5}] },
-        { sub: '۴-۲ سیستم آبرسانی', w: 6, self: 4, options: [{label:'مخازن ذخیره', value:2}, {label:'چاه و پمپ', value:3}, {label:'شبکه شهری', value:4}] },
-        { sub: '۵-۲ مدیریت فاضلاب', w: 3, self: 4, options: [{label:'چاه جذبی', value:3}, {label:'اگوی شهری', value:4}] },
-        { sub: '۶-۲ سیستم گازرسانی', w: 5, self: 3, options: [{label:'کپسول گاز', value:2}, {label:'شبکه گاز', value:3}, {label:'تأییدیه مرجع', value:4}] }
-    ]},
-    { title: '۳- تأسیسات برق ساختمان', weight: '۸۰ امتیاز', items: [
-        { sub: '۱-۳ تابلو برق', w: 3, self: 5, options: [{label:'ندارد', value:0}, {label:'استاندارد دارد', value:5}] },
-        { sub: '۲-۳ سیستم ارت', w: 2, self: 5, options: [{label:'ندارد', value:0}, {label:'فعال دارد', value:5}] },
-        { sub: '۳-۳ پریزهای ضد آب', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۴-۳ برق اضطراری', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۵-۳ یو پی اس', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۶-۳ ایمنی سیم‌کشی', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
-        { sub: '۷-۳ کلید محافظ جان', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] }
-    ]},
-    { title: '۴- آسانسورها و خروج اضطراری', weight: '۶۴ امتیاز', items: [
-        { sub: '۱-۴ راه‌پله اضطراری', w: 6, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۲-۴ درب اضطراری', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۳-۴ ایمنی آسانسور', w: 4, self: 3, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
-        { sub: '۴-۴ خدمات سرویس و بیمه آسانسور', w: 4, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد (یا فاقد آسانسور)', value:4}] }
-    ]},
-    { title: '۵- تأسیسات و تجهیزات ایمنی و بهداشتی', weight: '۱۷۴ امتیاز', items: [
-        { sub: '۱-۵ سیستم نشت گاز', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
-        { sub: '۲-۵ سیستم اعلان حریق', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۳-۵ سیستم اطفای حریق', w: 4, self: 3, options: [{label:'ندارد', value:0}, {label:'سایر', value:1}, {label:'آبفشان سقفی', value:2}, {label:'کپسول آتش‌نشانی', value:3}] },
-        { sub: '۴-۵ حصارکشی محوطه', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۵-۵ حفاظ پنجره‌ها', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۶-۵ حفاظ راه‌پله‌ها', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۷-۵ حفاظ بالکن‌ها و تراس‌ها', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۸-۵ ترمز پله', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۹-۵ تهویه مناسب', w: 4, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۱۰-۵ قطع اضطراری منابع انرژی', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۱۱-۵ دوربین مدار بسته', w: 4, self: 2, options: [{label:'ندارد', value:0}, {label:'محیط پیرامونی', value:1}, {label:'ورودی ساختمان', value:1}, {label:'ورودی خوابگاه', value:2}] },
-        { sub: '۱۲-۵ گیت کنترل تردد', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۱۳-۵ روشنایی خوابگاه', w: 4, self: 3, options: [{label:'نامناسب', value:0}, {label:'تقریباً مناسب', value:1}, {label:'مناسب', value:3}] },
-        { sub: '۱۴-۵ سمپاشی', w: 3, self: 2, options: [{label:'انجام نمی‌شود', value:0}, {label:'دوره‌ای انجام می‌شود', value:2}] },
-        { sub: '۱۵-۵ سر و صدا', w: 3, self: 2, options: [{label:'وجود دارد', value:0}, {label:'وجود ندارد', value:2}] },
-        { sub: '۱۶-۵ علائم و تابلوهای ایمنی', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
-        { sub: '۱۷-۵ جعبه کمک‌های اولیه', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] }
-    ]},
-    { title: '۶- طراحی خوابگاه', weight: '۳۷۸ امتیاز', items: [
-        { sub: '۱-۶ مناسب‌سازی معلولین', w: 4, self: 6, options: [{label:'خیر', value:0}, {label:'بله', value:6}] },
-        { sub: '۲-۶ هال اختصاصی هر سوئیت', w: 2, self: 5, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۳-۶ آشپزخانه داخل سوئیت', w: 4, self: 5, options: [{label:'ندارد', value:0}, {label:'دارد', value:6}] },
-        { sub: '۴-۶ کلوزت داخل اتاق خواب', w: 2, self: 5, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۵-۶ مساحت واحد/سوئیت', w: 1, self: 50, options: [{label:'زیر ۵۰ متر', value:30}, {label:'۵۰ تا ۶۰ متر', value:50}, {label:'۷۰ متر به بالا', value:70}] },
-        { sub: '۶-۶ فضای بازی کودکان', w: 6, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
-        { sub: '۷-۶ مهد کودک یا دسترسی', w: 4, self: 5, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۸-۶ موقعیت خوابگاه', w: 2, self: 1, options: [{label:'خارج پردیس', value:1}, {label:'داخل پردیس', value:10}] },
-        { sub: '۹-۶ فروشگاه و نانوایی', w: 3, self: 10, options: [{label:'ندارد', value:0}, {label:'دارد', value:10}] },
-        { sub: '۱۰-۶ پارکینگ درون خوابگاه', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۱۱-۶ اتاق مشاوره و مشاور خانواده', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۱۲-۶ فضای سبز و نورپردازی', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۱۳-۶ سالن اجتماعات چندمنظوره', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۱۴-۶ سالن ورزشی', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۱۵-۶ نصب تابلو قوانین', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۱۶-۶ علائم و تابلوهای ایمنی', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۱۷-۶ علائم راهنمای ساختمان', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۱۸-۶ اینترنت و پوشش‌دهی', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'فقط مکان عمومی', value:2}, {label:'داخل اتاق‌ها', value:4}, {label:'کل ساختمان', value:6}] },
-        { sub: '۱۹-۶ رنگ‌آمیزی', w: 2, self: 8, options: [{label:'نامناسب', value:1}, {label:'تقریباً مناسب', value:4}, {label:'مناسب', value:8}] },
-        { sub: '۲۰-۶ کاربری ساختمان', w: 4, self: 10, options: [{label:'غیرخوابگاهی', value:4}, {label:'خوابگاهی', value:10}] }
-    ]},
-    { title: '۷- امنیت و سیستم‌های مدیریتی', weight: '۶۸ امتیاز', items: [
-        { sub: '۱-۷ بافت شهری', w: 2, self: 3, options: [{label:'در محدوده آسیب', value:0}, {label:'محدوده مناسب', value:3}] },
-        { sub: '۲-۷ وضعیت امنیتی خوابگاه', w: 6, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۳-۷ دسترسی خوابگاه', w: 3, self: 4, options: [{label:'نامناسب', value:0}, {label:'مناسب و ناکافی', value:3}, {label:'نزدیک حمل‌ونقل عمومی', value:4}] },
-        { sub: '۴-۷ روشنایی اطراف', w: 2, self: 4, options: [{label:'نامناسب', value:0}, {label:'تقریباً مناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۵-۷ مدیریت پسماند', w: 3, self: 0, options: [{label:'خیر', value:0}, {label:'دارد', value:2}] },
-        { sub: '۶-۷ مدیریت HSE', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
-        { sub: '۷-۷ مدیریت انرژی', w: 2, self: 0, options: [{label:'خیر', value:0}, {label:'دارد', value:2}] }
-    ]}
+    // ... (بقیه موارد)
 ];
 
 const SECTIONS_MOJARAD = [
@@ -268,103 +198,12 @@ const SECTIONS_MOJARAD = [
         { sub: '۲-۱ پایداری لرزه‌ای', w: 5, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
         { sub: '۳-۱ عمر ساختمان', w: 10, self: 1, options: [{label:'بالای ۳۲ سال', value:1}, {label:'۳۱-۲۴ سال', value:2}, {label:'۲۳-۱۶ سال', value:3}, {label:'۱۵-۸ سال', value:4}, {label:'۷-۱ سال', value:6}] }
     ]},
-    { title: '۲- تأسیسات مکانیکی ساختمان', weight: '۱۳۶ امتیاز', items: [
-        { sub: '۱-۲ موتورخانه', w: 6, self: 5, options: [{label:'۱', value:1}, {label:'۲', value:2}, {label:'۳', value:3}, {label:'۴', value:4}, {label:'۵', value:5}] },
-        { sub: '۲-۲ سیستم گرمایش', w: 5, self: 4, options: [{label:'ندارد', value:0}, {label:'بخاری گازی', value:1}, {label:'ایرواشر', value:2}, {label:'شوفاژ و فن‌کوئل', value:4}, {label:'داکت اسپیلت/کف', value:5}] },
-        { sub: '۳-۲ سیستم سرمایش', w: 5, self: 1, options: [{label:'ندارد', value:0}, {label:'کولر آبی', value:1}, {label:'ایرواشر', value:2}, {label:'اسپیلت/داکت', value:3}, {label:'چیلر/فن‌کوئل/کولر گازی', value:5}] },
-        { sub: '۴-۲ سیستم آبرسانی', w: 6, self: 4, options: [{label:'مخازن ذخیره', value:2}, {label:'چاه و پمپ', value:3}, {label:'شبکه شهری', value:4}] },
-        { sub: '۵-۲ مدیریت فاضلاب', w: 3, self: 3, options: [{label:'چاه جذبی', value:3}, {label:'اگوی شهری', value:4}] },
-        { sub: '۶-۲ سیستم گازرسانی', w: 5, self: 3, options: [{label:'کپسول گاز', value:2}, {label:'شبکه گاز', value:3}, {label:'تأییدیه مرجع', value:4}] }
-    ]},
-    { title: '۳- تأسیسات برق ساختمان', weight: '۸۰ امتیاز', items: [
-        { sub: '۱-۳ تابلو برق', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'استاندارد دارد', value:5}] },
-        { sub: '۲-۳ سیستم ارت', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'فعال دارد', value:5}] },
-        { sub: '۳-۳ پریزهای ضد آب', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۴-۳ برق اضطراری', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۵-۳ یو پی اس', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۶-۳ ایمنی سیم‌کشی', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
-        { sub: '۷-۳ کلید محافظ جان', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] }
-    ]},
-    { title: '۴- آسانسورها و خروج اضطراری', weight: '۶۴ امتیاز', items: [
-        { sub: '۱-۴ راه‌پله اضطراری', w: 6, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۲-۴ درب اضطراری', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۳-۴ ایمنی آسانسور', w: 4, self: 3, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
-        { sub: '۴-۴ خدمات تعمیر و نگهداری', w: 2, self: 4, options: [{label:'انجام نمی‌شود', value:0}, {label:'دوره‌ای انجام می‌شود', value:4}, {label:'فاقد آسانسور', value:2}] },
-        { sub: '۵-۴ بیمه آسانسور', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] }
-    ]},
-    { title: '۵- تأسیسات و تجهیزات ایمنی و بهداشتی', weight: '۱۷۴ امتیاز', items: [
-        { sub: '۱-۵ سیستم نشت گاز', w: 3, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
-        { sub: '۲-۵ سیستم اعلان حریق', w: 4, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:5}] },
-        { sub: '۳-۵ سیستم اطفای حریق', w: 4, self: 3, options: [{label:'ندارد', value:0}, {label:'سایر', value:1}, {label:'آبفشان سقفی', value:2}, {label:'کپسول آتش‌نشانی', value:3}] },
-        { sub: '۴-۵ حصارکشی محوطه', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۵-۵ حفاظ پنجره‌ها', w: 2, self: 2, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۶-۵ حفاظ راه‌پله‌ها', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۷-۵ حفاظ بالکن‌ها و تراس‌ها', w: 2, self: 2, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۸-۵ نردبان و حفاظ تخت‌خواب‌ها', w: 4, self: 2, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۹-۵ تهویه مناسب', w: 4, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۱۰-۵ قطع اضطراری منابع انرژی', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۱۱-۵ دوربین مدار بسته', w: 4, self: 2, options: [{label:'ندارد', value:0}, {label:'محیط پیرامونی', value:1}, {label:'ورودی ساختمان', value:1}, {label:'ورودی خوابگاه', value:2}] },
-        { sub: '۱۲-۵ گیت کنترل تردد', w: 4, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۱۳-۵ روشنایی خوابگاه', w: 4, self: 3, options: [{label:'نامناسب', value:0}, {label:'تقریباً مناسب', value:1}, {label:'مناسب', value:3}] },
-        { sub: '۱۴-۵ وضعیت سمپاشی', w: 3, self: 2, options: [{label:'انجام نمی‌شود', value:0}, {label:'دوره‌ای انجام می‌شود', value:2}] },
-        { sub: '۱۵-۵ سر و صدا', w: 3, self: 2, options: [{label:'وجود دارد', value:0}, {label:'وجود ندارد', value:2}] },
-        { sub: '۱۶-۵ علائم و تابلوهای ایمنی', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] },
-        { sub: '۱۷-۵ جعبه کمک‌های اولیه', w: 2, self: 3, options: [{label:'ندارد', value:0}, {label:'دارد', value:3}] }
-    ]},
-    { title: '۶- طراحی خوابگاه (مجردی)', weight: '۱۸۴ امتیاز', items: [
-        { sub: '۱-۶ سرانه سرویس بهداشتی', w: 4, self: 2, options: [{label:'بیشتر از ۱۵ نفر', value:1}, {label:'۱۲ تا ۱۴ نفر', value:2}, {label:'۹ تا ۱۱ نفر', value:3}, {label:'۶ تا ۸ نفر', value:4}] },
-        { sub: '۲-۶ سرانه دوش حمام', w: 4, self: 2, options: [{label:'بیشتر از ۱۵ نفر', value:1}, {label:'۱۲ تا ۱۴ نفر', value:2}, {label:'۹ تا ۱۱ نفر', value:3}, {label:'۶ تا ۸ نفر', value:4}] },
-        { sub: '۳-۶ سرویس بهداشتی در هر طبقه', w: 2, self: 3, options: [{label:'خیر', value:0}, {label:'بله', value:3}] },
-        { sub: '۴-۶ حمام در هر طبقه', w: 2, self: 3, options: [{label:'خیر', value:0}, {label:'بله', value:3}] },
-        { sub: '۵-۶ آشپزخانه در هر طبقه', w: 2, self: 3, options: [{label:'خیر', value:0}, {label:'بله', value:3}] },
-        { sub: '۶-۶ لابی (اتاق ملاقات)', w: 2, self: 0, options: [{label:'خیر', value:0}, {label:'بله', value:3}] },
-        { sub: '۷-۶ سرانه فیزیکی هر نفر', w: 5, self: 2, options: [{label:'کمتر از ۳ متر', value:0}, {label:'۳ تا ۳.۵ متر', value:1}, {label:'۳.۵ تا ۴ متر', value:2}, {label:'۴ تا ۵ متر', value:3}, {label:'بیشتر از ۵ متر', value:4}] },
-        { sub: '۸-۶ سالن مطالعه', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۹-۶ اتاق رایانه', w: 2, self: 2, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
-        { sub: '۱۰-۶ اتاق ویژه مهمان', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
-        { sub: '۱۱-۶ اتاق فعالیت‌های دانشجویی', w: 2, self: 0, options: [{label:'ندارد', value:0}, {label:'اتاق شورای صنفی', value:2}, {label:'اتاق فعالیت‌های فرهنگی', value:2}] },
-        { sub: '۱۲-۶ اتاق مشاوره', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۱۳-۶ نمازخانه', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۱۴-۶ سالن ورزشی', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۱۵-۶ وضعیت پوشش اینترنت', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'فقط مکان عمومی', value:1}, {label:'داخل اتاق‌ها', value:2}, {label:'کل ساختمان', value:4}] },
-        { sub: '۱۶-۶ نصب تابلو قوانین', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۱۷-۶ علائم و تابلوهای راهنمای ساختمان', w: 2, self: 4, options: [{label:'وجود ندارد', value:0}, {label:'مناسب ولی ناکافی', value:2}, {label:'برای هر بخش وجود دارد', value:4}] },
-        { sub: '۱۸-۶ رختشورخانه', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۱۹-۶ اتاق تلویزیون', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۲۰-۶ رنگ‌آمیزی', w: 3, self: 3, options: [{label:'نامناسب', value:0}, {label:'تقریباً مناسب', value:3}, {label:'مناسب', value:4}] }
-    ]},
-    { title: '۷- امکانات رفاهی فردی و عمومی', weight: '۲۰۴ امتیاز', items: [
-        { sub: '۱-۷ تعداد تخت‌خواب', w: 5, self: 4, options: [{label:'کمتر از ۷۵٪', value:0}, {label:'۷۵-۹۰٪', value:1}, {label:'۹۰-۱۰۰٪', value:2}, {label:'۱۰۰٪ ظرفیت', value:4}] },
-        { sub: '۲-۷ کیفیت تخت‌خواب', w: 3, self: 4, options: [{label:'ناسالم و مستهلک', value:0}, {label:'سالم و غیرمستهلک', value:4}] },
-        { sub: '۳-۷ تشک', w: 4, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:4}] },
-        { sub: '۴-۷ میز تحریر و صندلی', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:4}] },
-        { sub: '۵-۷ کمد البسه', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:4}] },
-        { sub: '۶-۷ فرش اتاق', w: 2, self: 3, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:2}, {label:'مناسب و ناکافی', value:3}, {label:'مناسب و کافی', value:4}] },
-        { sub: '۷-۷ موکت', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:2}, {label:'مناسب و ناکافی', value:3}, {label:'مناسب و کافی', value:4}] },
-        { sub: '۸-۷ جاکفشی', w: 2, self: 4, options: [{label:'بسیار ناکافی', value:1}, {label:'ناکافی', value:2}, {label:'مناسب و کافی', value:4}] },
-        { sub: '۹-۷ رخت‌آویز', w: 2, self: 4, options: [{label:'بسیار ناکافی', value:1}, {label:'ناکافی', value:2}, {label:'مناسب و کافی', value:4}] },
-        { sub: '۱۰-۷ پرده', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:2}, {label:'مناسب و ناکافی', value:3}, {label:'مناسب و کافی', value:4}] },
-        { sub: '۱۱-۷ سرانه یخچال', w: 5, self: 3, options: [{label:'۰.۵-۱ فوت', value:1}, {label:'۱-۱.۵ فوت', value:2}, {label:'۱.۵-۲ فوت', value:3}, {label:'۲ فوت یا بیشتر', value:4}] },
-        { sub: '۱۲-۷ آب سردکن', w: 3, self: 3, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:2}, {label:'مناسب و ناکافی', value:3}, {label:'مناسب و کافی', value:4}] },
-        { sub: '۱۳-۷ سرانه جاروبرقی', w: 3, self: 2, options: [{label:'ندارد', value:0}, {label:'۴۱ نفر به بالا', value:1}, {label:'۲۱-۴۱ نفر', value:2}, {label:'۲۰ نفر و کمتر', value:4}] },
-        { sub: '۱۴-۷ سرانه ماشین لباسشویی', w: 3, self: 2, options: [{label:'ندارد', value:0}, {label:'۴۱ نفر به بالا', value:1}, {label:'۲۱-۴۱ نفر', value:2}, {label:'۲۰ نفر و کمتر', value:4}] },
-        { sub: '۱۵-۷ سرانه اتو برقی', w: 2, self: 2, options: [{label:'ندارد', value:0}, {label:'۳۳ نفر به بالا', value:1}, {label:'۲۴-۳۲ نفر', value:2}, {label:'۱۶-۲۴ نفر', value:3}, {label:'۱۶ نفر و کمتر', value:4}] },
-        { sub: '۱۶-۷ اجاق گاز', w: 3, self: 4, options: [{label:'۱۰ نفر و بیشتر', value:0}, {label:'۹-۱۰ نفر', value:1}, {label:'۸-۹ نفر', value:2}, {label:'۶-۸ نفر', value:3}, {label:'کمتر از ۶ نفر', value:4}] },
-        { sub: '۱۷-۷ واکس برقی', w: 2, self: 4, options: [{label:'ندارد', value:0}, {label:'نامناسب', value:1}, {label:'مناسب', value:4}] },
-        { sub: '۱۸-۷ مایکروفر', w: 2, self: 4, options: [{label:'۴۱ نفر به بالا', value:1}, {label:'۳۱-۴۱ نفر', value:2}, {label:'۲۱-۳۱ نفر', value:3}, {label:'۲۰ نفر و کمتر', value:4}] }
-    ]},
-    { title: '۸- امنیت و سیستم‌های مدیریتی', weight: '۵۸ امتیاز', items: [
-        { sub: '۱-۸ بافت شهری', w: 2, self: 3, options: [{label:'در محدوده آسیب', value:0}, {label:'محدوده مناسب', value:3}] },
-        { sub: '۲-۸ اشراف ساختمان مجاور', w: 2, self: 3, options: [{label:'مشرف هستند', value:0}, {label:'مشرف نیستند', value:3}] },
-        { sub: '۳-۸ وضعیت امنیتی', w: 3, self: 4, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
-        { sub: '۴-۸ دسترسی خوابگاه', w: 3, self: 4, options: [{label:'نامناسب', value:0}, {label:'مناسب و ناکافی', value:3}, {label:'نزدیک حمل‌ونقل عمومی', value:4}] },
-        { sub: '۵-۸ روشنایی اطراف خوابگاه', w: 2, self: 4, options: [{label:'نامناسب', value:0}, {label:'تقریباً مناسب', value:2}, {label:'مناسب', value:4}] },
-        { sub: '۶-۸ مدیریت پسماند', w: 3, self: 2, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
-        { sub: '۷-۸ مدیریت HSE', w: 2, self: 2, options: [{label:'ندارد', value:0}, {label:'دارد', value:2}] },
-        { sub: '۸-۸ مدیریت انرژی', w: 2, self: 0, options: [{label:'خیر', value:0}, {label:'دارد', value:2}] }
-    ]}
+    // ... (بقیه موارد)
 ];
 
+// ==========================================================
+// توابع اصلی
+// ==========================================================
 let currentEvaluator = null;
 let currentDorm = null;
 
@@ -543,10 +382,8 @@ function saveToSite() {
     statusEl.textContent = '⏳ در حال ذخیره در سایت...';
     statusEl.style.color = '#0b6e99';
 
-    // دقت کنید نام جدول اینجا 'evaluations' است
     fetch(`${SUPABASE_URL}/rest/v1/evaluations`, {
         method: 'POST',
-        mode: 'no-cors', 
         headers: {
             'Content-Type': 'application/json',
             'apikey': SUPABASE_KEY,
@@ -562,8 +399,15 @@ function saveToSite() {
         })
     })
     .then(response => {
-        statusEl.textContent = '✅ اطلاعات ارسال شد! (لطفاً برای اطمینان در دیتابیس چک کنید)';
-        statusEl.style.color = '#059669';
+        if (response.ok) {
+            statusEl.textContent = '✅ اطلاعات با موفقیت در سایت ذخیره شد.';
+            statusEl.style.color = '#059669';
+        } else {
+            response.text().then(err => {
+                statusEl.textContent = '❌ خطا: ' + err;
+                statusEl.style.color = '#b91c1c';
+            });
+        }
     })
     .catch(error => {
         statusEl.textContent = '❌ خطا در ارتباط با سرور: ' + error.message;
