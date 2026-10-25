@@ -180,8 +180,6 @@ const DORMS = [
     { id: 'sarshar', name: 'سرشار', type: 'مجردی', ownership: 'استیجاری', mgmt: 'مشارکتی', units: '—', families: '۲۷۰' }
 ];
 
-// ... (بقیه کدهای مربوط به SECTIONS_MOTAAHALI و SECTIONS_MOJARAD بدون تغییر باقی می‌مانند) ...
-
 const SECTIONS_MOTAAHALI = [
     { title: '۱- استحکام بنا', weight: '۱۰۰ امتیاز', items: [
         { sub: '۱-۱ تأیید فنی ساختمان', w: 5, self: 0, options: [{label:'ندارد', value:0}, {label:'دارد', value:4}] },
@@ -544,6 +542,7 @@ function saveToSite() {
     statusEl.textContent = '⏳ در حال ذخیره در سایت...';
     statusEl.style.color = '#0b6e99';
 
+    // ارسال درخواست به Supabase
     fetch(`${SUPABASE_URL}/rest/v1/evaluations`, {
         method: 'POST',
         headers: {
@@ -565,6 +564,7 @@ function saveToSite() {
             statusEl.textContent = '✅ اطلاعات با موفقیت در سایت ذخیره شد.';
             statusEl.style.color = '#059669';
         } else {
+            // نمایش خطای دقیق سرور روی صفحه
             response.text().then(err => {
                 statusEl.textContent = '❌ خطای سرور: ' + err;
                 statusEl.style.color = '#b91c1c';
@@ -572,6 +572,7 @@ function saveToSite() {
         }
     })
     .catch(error => {
+        // نمایش خطای دقیق شبکه روی صفحه
         statusEl.textContent = '❌ خطای شبکه: ' + error.message;
         statusEl.style.color = '#b91c1c';
     });
